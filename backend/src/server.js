@@ -1,19 +1,26 @@
 const express = require("express");
-const notesRoutes = require("./routes/notesRoutes");
-const connectDB = require("./config/db.js");
 const dotenv = require("dotenv");
-const rateLimiter = require("./middleware/rateLimiter.js")
-
+const cors = require("cors");
 dotenv.config();
-const PORT = process.env.PORT || 5001;
+
+const connectDB = require("./config/db.js");
+const rateLimiter = require("./middleware/rateLimiter.js");
+const notesRoutes = require("./routes/notesRoutes");
 
 const app = express();
-
+const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 
+// Cors
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  }),
+);
+
 // Rate limiting Middleware
-app.use(rateLimiter)
+app.use(rateLimiter);
 
 // Custom Middleware
 app.use((req, res, next) => {
@@ -23,9 +30,8 @@ app.use((req, res, next) => {
 
 app.use("/api/notes", notesRoutes);
 
-connectDB().then(()=>{
-    app.listen(PORT, () => {
-      console.log(`Server started on PORT ${PORT}`);
-    });
-})
-
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server started on PORT ${PORT}`);
+  });
+});
